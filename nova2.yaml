@@ -1,0 +1,124 @@
+
+# Servers
+list_servers:
+  get:
+    - [image, image_ref]
+    - [flavor, flavor_ref]
+    - [name, string]
+    - [status, server_status]
+    - [marker, marker_id]
+    - [limit, integer]
+    - [changes-since, datetime]
+  path: /servers
+
+list_servers_detail:
+  get:
+    - [image, image_ref]
+    - [flavor, flavor_ref]
+    - [name, string]
+    - [status, server_status]
+    - [marker, marker_id]
+    - [limit, integer]
+    - [changes-since, datetime]
+  path: /servers/detail
+
+get_server:
+  get:
+    - [server_id, server_id]
+  path: /servers/%(server_id)s
+  request: $None
+
+# Server Addresses
+list_addresses:
+  get:
+    - [server_id, server_id]
+  path: /servers/%(server_id)s/ips
+  request: $None
+
+list_addresses_by_network:
+  get:
+    - [server_id, server_id]
+    - [network_id, network_id]
+  path: /servers/%(server_id)s/ips/%(network_id)s
+  request: $None
+
+# Server Actions
+
+# Flavors
+list_flavors:
+  get:
+    - [minDisk, min_disk_in_gb]
+    - [minRam, min_ram_in_mb]
+    - [marker, marker_id]
+    - [limit, integer]
+  path: /flavors
+
+list_flavors_detail:
+  get:
+    - [minDisk, min_disk_in_gb]
+    - [minRam, min_ram_in_mb]
+    - [marker, marker_id]
+    - [limit, integer]
+  path: /flavors/detail
+
+get_flavor:
+  get:
+    - [flavor_id, flavor_id]
+  path: /flavors/%(flavor_id)s
+  request: $None
+
+# Images
+list_images:
+  get:
+    - [server, server_ref]
+    - [name, string]
+    - [status, image_status]
+    - [changes-since, datetime]
+    - [marker, marker_id]
+    - [limit, integer]
+    - [type, image_type]
+  path: /images
+
+list_images_detail:
+  get:
+    - [server, server_ref]
+    - [name, string]
+    - [status, image_status]
+    - [changes-since, datetime]
+    - [marker, marker_id]
+    - [limit, integer]
+    - [type, image_type]
+  path: /images/detail
+
+get_image:
+  get:
+    - [image_id, image_id]
+  path: /images/%(image_id)s
+  request: $None
+
+# Metadata
+list_server_metadata:
+  get:
+    - [server_id, server_id]
+  path: /servers/%(server_id)s
+  request: $None
+
+list_image_metadata:
+  get:
+    - [image_id, image_id]
+  path: /images/%(image_id)s
+  request: $None
+
+get_server_metadata:
+  get:
+    - [server_id, server_id]
+    - [key, string]
+  path: /servers/%(server_id)s/metadata/%(key)s
+  request: $None
+
+get_image_metadata:
+  get:
+    - [image_id, image_id]
+    - [key, string]
+  path: /images/%(image_id)s/metadata/%(key)s
+  request: $None

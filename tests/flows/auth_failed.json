@@ -1,0 +1,33 @@
+[
+  {
+    "request": {
+      "url": "http://example.com:8770/v2.0/tokens",
+      "method": "POST",
+      "content": "{\"auth\": {\"tenantName\": \"foo\", \"passwordCredentials\": {\"username\": \"foo\", \"password\": \"foo\"}}}",
+      "headers": {
+        "content-length": "94",
+        "accept-encoding": "gzip, deflate, compress",
+        "accept": "*/*",
+        "user-agent": "python-requests/1.1.0 CPython/2.7.2 Darwin/12.2.1",
+        "host": "example.com:8770",
+        "content-type": "application/json"
+      },
+      "host": "example.com",
+      "query": {},
+      "path": "/v2.0/tokens",
+      "scheme": "http",
+      "port": 8770
+    },
+    "response": {
+      "msg": "Not Authorized",
+      "headers": {
+        "date": "Tue, 05 Feb 2013 19:59:07 GMT",
+        "content-type": "application/json",
+        "content-length": "116",
+        "vary": "X-Auth-Token"
+      },
+      "code": 401,
+      "content": "{\"error\": {\"message\": \"The request you have made requires authentication.\", \"code\": 401, \"title\": \"Not Authorized\"}}"
+    }
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "request": {
+      "url": "http://example.com:8770/v2.0/tokens",
+      "method": "POST",
+      "content": "{\"auth\": {\"tenantName\": \"termie\", \"passwordCredentials\": {\"username\": \"termie\", \"password\": \"termie\"}}}",
+      "headers": {
+        "content-length": "103",
+        "accept-encoding": "gzip, deflate, compress",
+        "accept": "*/*",
+        "user-agent": "python-requests/1.1.0 CPython/2.7.2 Darwin/12.2.1",
+        "host": "example.com:8770",
+        "content-type": "application/json"
+      },
+      "host": "example.com",
+      "query": {},
+      "path": "/v2.0/tokens",
+      "scheme": "http",
+      "port": 8770
+    },
+    "response": {
+      "msg": "OK",
+      "headers": {
+        "date": "Tue, 05 Feb 2013 19:23:29 GMT",
+        "content-type": "application/json",
+        "content-length": "1919",
+        "vary": "X-Auth-Token"
+      },
+      "code": 200,
+      "content": "{\"access\": {\"token\": {\"expires\": \"2013-02-06T19:23:29Z\", \"id\": \"0b67f1bba1e94cb38d97b8b7fc17ecbc\", \"tenant\": {\"enabled\": true, \"description\": \"\", \"name\": \"termie\", \"id\": \"04244909d66d42f8a03e4e85e05eeecf\"}}, \"serviceCatalog\": [{\"endpoints\": [{\"adminURL\": \"http://proxy:8776/v1/04244909d66d42f8a03e4e85e05eeecf\", \"region\": \"RegionOne\", \"publicURL\": \"http://example.com:8776/v1/04244909d66d42f8a03e4e85e05eeecf\", \"internalURL\": \"http://proxy:8776/v1/04244909d66d42f8a03e4e85e05eeecf\"}], \"endpoints_links\": [], \"type\": \"volume\", \"name\": \"Volume Service\"}, {\"endpoints\": [{\"adminURL\": \"http://proxy:9292/v1\", \"region\": \"RegionOne\", \"publicURL\": \"http://example.com:9292/v1\", \"internalURL\": \"http://proxy:9292/v1\"}], \"endpoints_links\": [], \"type\": \"image\", \"name\": \"Image Service\"}, {\"endpoints\": [{\"adminURL\": \"http://proxy:8774/v2/04244909d66d42f8a03e4e85e05eeecf\", \"region\": \"RegionOne\", \"publicURL\": \"http://example.com:8774/v2/04244909d66d42f8a03e4e85e05eeecf\", \"internalURL\": \"http://proxy:8774/v2/04244909d66d42f8a03e4e85e05eeecf\"}], \"endpoints_links\": [], \"type\": \"compute\", \"name\": \"Compute Service\"}, {\"endpoints\": [{\"adminURL\": \"http://proxy:8773/services/Admin\", \"region\": \"RegionOne\", \"publicURL\": \"http://example.com:8773/services/Cloud\", \"internalURL\": \"http://proxy:8773/services/Cloud\"}], \"endpoints_links\": [], \"type\": \"ec2\", \"name\": \"EC2 Service\"}, {\"endpoints\": [{\"adminURL\": \"http://proxy:35357/v2.0\", \"region\": \"RegionOne\", \"publicURL\": \"http://example.com:8770/v2.0\", \"internalURL\": \"http://proxy:8770/v2.0\"}], \"endpoints_links\": [], \"type\": \"identity\", \"name\": \"Identity Service\"}], \"user\": {\"username\": \"termie\", \"roles_links\": [], \"id\": \"7dfae3229cc640c99075d864725dbfe9\", \"roles\": [{\"name\": \"Admin\"}], \"name\": \"termie\"}, \"metadata\": {\"is_admin\": 0, \"roles\": [\"e73704a31e054b0b9be99ee67a972771\"]}}}"
+    }
+  },
+  {
+    "request": {
+      "url": "http://example.com:9292/v1/images",
+      "method": "GET",
+      "content": "",
+      "headers": {
+        "content-length": "0",
+        "accept-encoding": "gzip, deflate, compress",
+        "accept": "*/*",
+        "x-auth-token": "0b67f1bba1e94cb38d97b8b7fc17ecbc",
+        "host": "example.com:9292",
+        "user-agent": "python-requests/1.1.0 CPython/2.7.2 Darwin/12.2.1",
+        "content-type": "application/json"
+      },
+      "host": "example.com",
+      "query": {},
+      "path": "/v1/images",
+      "scheme": "http",
+      "port": 9292
+    },
+    "response": {
+      "msg": "OK",
+      "headers": {
+        "date": "Tue, 05 Feb 2013 19:23:32 GMT",
+        "content-length": "1027",
+        "content-type": "application/json; charset=UTF-8",
+        "x-openstack-request-id": "req-4816d397-7d4a-43df-a923-a0b1f7ab58c9"
+      },
+      "code": 200,
+      "content": "{\"images\": [{\"name\": \"CentOS 6.3 x64 machine\", \"container_format\": \"ami\", \"disk_format\": \"ami\", \"checksum\": \"d98b64292013f9ec0474baa7031a4448\", \"id\": \"bf546140-ecd6-49f1-b946-c8443406af75\", \"size\": 2146435072}, {\"name\": \"CentOS 6.3 x64 ramdisk\", \"container_format\": \"ari\", \"disk_format\": \"ari\", \"checksum\": \"61c82250c93be888d3b883cfdc4048a5\", \"id\": \"24d778e5-08b9-480a-97db-cd3a2a3f0288\", \"size\": 12972542}, {\"name\": \"CentOS 6.3 x64 kernel\", \"container_format\": \"aki\", \"disk_format\": \"aki\", \"checksum\": \"98aeda02072f12d8dd5a8ae0ec33cec7\", \"id\": \"d38184ae-cf39-41c4-8609-8525f2fd57c6\", \"size\": 3941776}, {\"name\": \"Ubuntu 12.04 server cloudimg amd64\", \"container_format\": \"ovf\", \"disk_format\": \"qcow2\", \"checksum\": \"bb600526ee29eb8d0f575680decab6eb\", \"id\": \"83187b6f-ccae-4609-8962-5b803aa636f2\", \"size\": 230490112}, {\"name\": \"Ubuntu 11.10 server cloudimg amd64\", \"container_format\": \"ovf\", \"disk_format\": \"qcow2\", \"checksum\": \"e8ff23cf89a0568929e016d8e2786c53\", \"id\": \"8b3a2ba5-6712-4736-9382-1b9cf13c9a10\", \"size\": 228982784}]}"
+    }
+  }
+]
