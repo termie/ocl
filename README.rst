@@ -27,7 +27,7 @@ Helping The Fuck Out
 
 Try running the commands, when they fail, `post an issue`_.
 
- .. _`post an issue`: https://github.com/4P/ocl/issues
+ .. _`post an issue`: https://github.com/termie/ocl/issues
 
 
 --------------------
