@@ -38,6 +38,39 @@ class Api(object):
       setattr(getattr(self, base), method, self._REGISTRY[x])
 
 
+def request(method, url, data=None, headers=None, auth_ref=None):
+  headers = headers and headers or {}
+  if auth_ref:
+    headers['X-Auth-Token'] = auth_ref.token_id
+  f = getattr(http, method)
+  rv = f(url, data, headers=headers)
+  return rv
+
+
+def get(url, data=None, headers=None, auth_ref=None):
+  return request('get', url, data=data, headers=headers, auth_ref=auth_ref)
+
+
+def post(url, data=None, headers=None, auth_ref=None):
+  return request('post', url, data=data, headers=headers, auth_ref=auth_ref)
+
+
+def put(url, data=None, headers=None, auth_ref=None):
+  return request('put', url, data=data, headers=headers, auth_ref=auth_ref)
+
+
+def options(url, data=None, headers=None, auth_ref=None):
+  return request('options', url, data=data, headers=headers, auth_ref=auth_ref)
+
+
+def delete(url, data=None, headers=None, auth_ref=None):
+  return request('delete', url, data=data, headers=headers, auth_ref=auth_ref)
+
+
+def head(url, data=None, headers=None, auth_ref=None):
+  return request('head', url, data=data, headers=headers, auth_ref=auth_ref)
+
+
 class Base(object):
   catalog_type = None
   requests_config = {'danger_mode': False,
@@ -66,49 +99,37 @@ class Base(object):
   def _post(self, endpoint, data=None, headers=None, base_url=None,
             auth_ref=None):
     url = self._url(endpoint, base_url=base_url, auth_ref=auth_ref)
-    headers = headers and headers or {}
-    headers['X-Auth-Token'] = auth_ref.token_id
-    rv = http.post(url, data, headers=headers)
+    rv = post(url, data=data, headers=headers, auth_ref=auth_ref)
     return self._check_errors(rv)
 
   def _put(self, endpoint, data=None, headers=None, base_url=None,
            auth_ref=None):
     url = self._url(endpoint, base_url=base_url, auth_ref=auth_ref)
-    headers = headers and headers or {}
-    headers['X-Auth-Token'] = auth_ref.token_id
-    rv = http.put(url, data, headers=headers)
+    rv = put(url, data=data, headers=headers, auth_ref=auth_ref)
     return self._check_errors(rv)
 
   def _get(self, endpoint, data=None, headers=None, base_url=None,
            auth_ref=None):
     url = self._url(endpoint, base_url=base_url, auth_ref=auth_ref)
-    headers = headers and headers or {}
-    headers['X-Auth-Token'] = auth_ref.token_id
-    rv = http.get(url, data, headers=headers)
+    rv = get(url, data=data, headers=headers, auth_ref=auth_ref)
     return self._check_errors(rv)
 
   def _head(self, endpoint, data=None, headers=None, base_url=None,
             auth_ref=None):
     url = self._url(endpoint, base_url=base_url, auth_ref=auth_ref)
-    headers = headers and headers or {}
-    headers['X-Auth-Token'] = auth_ref.token_id
-    rv = http.head(url, data, headers=headers)
+    rv = head(url, data=data, headers=headers, auth_ref=auth_ref)
     return self._check_errors(rv)
 
   def _delete(self, endpoint, data=None, headers=None, base_url=None,
               auth_ref=None):
     url = self._url(endpoint, base_url=base_url, auth_ref=auth_ref)
-    headers = headers and headers or {}
-    headers['X-Auth-Token'] = auth_ref.token_id
-    rv = http.delete(url, data, headers=headers)
+    rv = delete(url, data=data, headers=headers, auth_ref=auth_ref)
     return self._check_errors(rv)
 
   def _options(self, endpoint, data=None, headers=None, base_url=None,
                auth_ref=None):
     url = self._url(endpoint, base_url=base_url, auth_ref=auth_ref)
-    headers = headers and headers or {}
-    headers['X-Auth-Token'] = auth_ref.token_id
-    rv = http.options(url, data, headers=headers)
+    rv = options(url, data=data, headers=headers, auth_ref=auth_ref)
     return self._check_errors(rv)
 
   # error handling

@@ -9,7 +9,7 @@ class Auth(object):
     self.tenant = tenant
     # NOTE(termie): Technically this is returned as a list, but I think we
     #               should be accessing it as a dict
-
+    self.raw_catalog = catalog
     self.catalog = {}
     for x in catalog:
       self.catalog[x['type']] = _ServiceCollection(type=x['type'],

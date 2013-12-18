@@ -84,11 +84,11 @@ class Glance(api.Base):
     qs['name'] = name
     qs = dict((k, v) for k, v in qs.iteritems() if v is not None)
 
-    replay = http.Replay()
-    replay._start_recording()
+    #replay = http.Replay()
+    #replay._start_recording()
     rv = self._get(endpoint, data=qs, auth_ref=auth_ref)
-    replay._stop_recording()
-    print replay.response
+    #replay._stop_recording()
+    #print replay.response
     images = rv.json()
     if cache_ref:
       for image in images['images']:

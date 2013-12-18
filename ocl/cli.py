@@ -27,10 +27,10 @@ class AppendApiAction(argparse.Action):
 
   def __init__(self, *args, **kw):
     super(AppendApiAction, self).__init__(*args, **kw)
-    print 'INIT', args, kw
 
   def __call__(self, parser, namespace, values, option_string=None):
     path = values[0]
+    print 'Appending auto-generated API from file: %s' % path
     name = os.path.splitext(os.path.basename(values[0]))[0]
     methods = yaml.load(open(path).read())
     service = api.api_factory(name, methods, api.MODELS)
@@ -69,6 +69,7 @@ global_group.add_argument('--clean',
                        action='store_true',
                        help='destroy all cache files')
 global_group.add_argument('--yolo',
+                          dest='global_yolo',
                           nargs=1,
                           action=AppendApiAction,
                           help='given a YAML file, add an api')
@@ -173,6 +174,7 @@ class DirectParser(Parser):
     for name, handle in services.iteritems():
       self._build_from_service(name, handle)
 
+
 class CommandLine(object):
   def _load_cached_token(self):
     try:
@@ -188,7 +190,7 @@ class CommandLine(object):
         raise
 
   def _set_cached_token(self, token):
-    json.dump(token, open(TOKEN_CACHE_NAME, 'w'))
+    json.dump(token, open(TOKEN_CACHE_NAME, 'w'), indent=2)
 
   def _get_auth_user(self, parsed):
     if parsed.auth_user:
@@ -218,11 +220,12 @@ class CommandLine(object):
     return tenant
 
   def _get_auth_url(self, parsed):
-    if not parsed.auth_url:
-      url = raw_input('Auth URL: ').strip()
-      parsed.auth_url = url
+    if parsed.auth_url:
+      return parsed.auth_url
     if 'OS_AUTH_URL' in os.environ:
         return os.environ['OS_AUTH_URL']
+    url = raw_input('Auth URL: ').strip()
+    parsed.auth_url = url
     return parsed.auth_url
 
   def _authenticate_interactive(self, parsed):

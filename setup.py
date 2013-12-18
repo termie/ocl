@@ -17,6 +17,7 @@ config = dict(
             'ocl = ocl.cli:main',
         ],
         'ocl.api.plugins': [
+            'discovery = ocl.discovery:register',
             'glance = ocl.service.glance:register',
             'nova = ocl.service.nova:register',
             'keystone = ocl.service.keystone:register',

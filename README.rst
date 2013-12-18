@@ -50,7 +50,7 @@ If you don't want to type the auth url you can set an env var ``OCL_AUTH_URL``
   # if the admin_url for keystone in the catalog is wrong you'll run into
   # weird problems later on...
 
-  $> export OCL_AUTH_URL=http://keystone.yourcloud.com:35357/v2.0
+  $> export OS_AUTH_URL=http://keystone.yourcloud.com:35357/v2.0
 
   $> ocl glance list_images
 
@@ -134,7 +134,7 @@ Library Example
 
   auth_ref = auth.authenticate(
       auth_url=KEYSTONE_URL, user=USER, password=PASSWORD, tenant=TENANT)
-  apee = api.Authenticated(api.CoreApi(), auth_ref)
+  apee = api.Authenticated(api.Api(), auth_ref)
 
   rv = apee.glance.list_images(name='foo')
   print rv['images'][0]['id']
@@ -211,6 +211,146 @@ Anything. As long as it's good data we'll look the other way::
   # Haha. Oh man, that auth is so crazy. -wipes tears from eyes-
 
 
+-------------------
+We Can Be Explorers
+-------------------
+
+Actually, Openstack pretty much forces you to be, so let's solve this
+whole discovery debacle. Let's be really, really aggressive about figuring
+out where all the calls we want to make should be going and what they should
+look like.
+
+Hell, let's make it a whole module dedicated to weeding out and generating a
+cacheable object that will tell us where we want to send our calls, and maybe
+even which calls we can send, and MAYBBBBBEEEEE even what those calls should
+look like.
+
+
+The "Service Catalog"
+---------------------
+
+What do we know already? Well, we have an AUTH_URL, and assuming we've got
+some valid credentials, that should net us a "Service Catalog" with our
+token request.
+
+That "Service Catalog" is sort of like a list of suggestions as to where we
+should target our requests, some of the services actually want us to make
+another request to find out where specifically to send the requests for that
+specific service.
+
+They also give us a variety of urls, some of which aren't even valid, because
+hey, why not.
+
+
+ocl discovery discover
+----------------------
+
+We included a discovery mechanism to help you build a list of available
+endpoints, you can run it from the command-line to get the raw output.
+
+Right now it starts with the service catalog returned in your auth token,
+and does some heuristics based on urls and data returned from urls to
+build up the list of available services, regions, endpoints, versions, etc::
+
+  (ocl)termie@champs:~/p/ocl % ocl discovery discover
+
+  { 'endpoints': [ { 'access': 'public',
+                     'endpoint': u'http://example:8774/v2/someuuid',
+                     'name': u'nova',
+                     'region': u'RegionOne',
+                     'service': u'compute',
+                     'version': u'v2'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:9696/v2.0',
+                     'name': u'network',
+                     'region': u'RegionOne',
+                     'service': u'network',
+                     'version': u'v2.0'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:9292/v2/',
+                     'name': u'glance',
+                     'region': u'RegionOne',
+                     'service': u'image',
+                     'version': u'v2.1'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:9292/v2/',
+                     'name': u'glance',
+                     'region': u'RegionOne',
+                     'service': u'image',
+                     'version': u'v2.0'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:9292/v1/',
+                     'name': u'glance',
+                     'region': u'RegionOne',
+                     'service': u'image',
+                     'version': u'v1.1'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:9292/v1/',
+                     'name': u'glance',
+                     'region': u'RegionOne',
+                     'service': u'image',
+                     'version': u'v1.0'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:8776/v1/someuuid',
+                     'name': u'cinder',
+                     'region': u'RegionOne',
+                     'service': u'volume',
+                     'version': u'v1'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:8888/swift/v1',
+                     'name': u'swift',
+                     'region': u'RegionOne',
+                     'service': u'object-store',
+                     'version': u'v1'},
+                   { 'access': 'admin',
+                     'endpoint': u'http://example:35357/v2.0',
+                     'name': u'keystone',
+                     'region': u'RegionOne',
+                     'service': u'identity',
+                     'version': u'v2.0'},
+                   { 'access': 'public',
+                     'endpoint': u'http://example:5000/v2.0',
+                     'name': u'keystone',
+                     'region': u'RegionOne',
+                     'service': u'identity',
+                     'version': u'v2.0'}]}
+
+In some ways this is more verbose and in other ways less verbose, than the
+default "service catalog" returned with your token, but it is definitely
+more useful. Especially when used as a library!
+
+
+ocl.discovery.Endpoints
+-----------------------
+
+When used as a library, the discovery call hands you back a very pleasant
+to use Endpoints data object. Examples::
+
+  from ocl import api
+  auth_ref = auth.authenticate(...)
+  apee = api.Api()
+
+  endpoints = apee.discovery.discover(auth_ref=auth_ref)
+
+  # List services available
+  rv = endpoints.services()
+  # [u'compute', u'identity', u'image', u'network', u'object-store', u'volume']
+
+  # Or the versions of the image service available
+  rv = endpoints.versions('image')
+  # [u'v1.0', u'v1.1', u'v2.0', u'v2.1']
+
+  # Or ask for a specific version
+  rv = endpoints.endpoint('image', version='v2.1')
+  # { 'access': 'public',
+  #   'endpoint': u'http://example:9292/v2/',
+  #   'name': u'glance',
+  #   'region': u'RegionOne',
+  #   'service': u'image',
+  #   'version': u'v2.1'}
+
+Have fun, champs.
+
 --------------
 State No State
 --------------
@@ -229,7 +369,7 @@ call) require an ``auth_ref`` parameter that is always passed as a keyword.::
   from ocl import auth
 
   auth_ref = auth.authenticate(...)
-  apee = api.CoreApi()
+  apee = api.Api()
 
   images = apee.glance.list_image(auth_ref=auth_ref)
 
@@ -252,7 +392,7 @@ automatically::
   from ocl import auth
 
   auth_ref = auth.authenticate(...)
-  apee = api.Authenticated(api.CoreApi(), auth_ref)
+  apee = api.Authenticated(api.Api(), auth_ref)
 
   images = apee.glance.list_image()
 
@@ -271,7 +411,7 @@ parameter, but we also have a wrapper for that::
 
   auth_ref = auth.authenticate(...)
   cache_ref = cache.Cache()
-  apee = api.Cached(api.Authenticated(api.CoreApi(), auth_ref), cache_ref)
+  apee = api.Cached(api.Authenticated(api.Api(), auth_ref), cache_ref)
 
   # This will cache all the image id / name mappings, for example
   images = apee.glance.list_images()
