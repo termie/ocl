@@ -1,5 +1,5 @@
-The One True OpenStack CLI and Library
-======================================
+The One True CLI and Library
+============================
 
 | *"One ocl to rule them all,
 | one ocl to find them,
