@@ -195,8 +195,8 @@ Library Example
 
 
 
-How We Are Awesome: The Architecture of OCL
-===========================================
+The Architecture of OCL
+=======================
 
 -----------------------------
 Authentication: Do This First
