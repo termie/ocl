@@ -1,10 +1,10 @@
 The One True CLI and Library
 ============================
 
-  |  *"One ocl to rule them all,
+  |  One ocl to rule them all,
   |  one ocl to find them,
   |  one ocl to bring them all
-  |  and in the darkness bind them."*
+  |  and in the darkness bind them.
 
 This is a command-line tool and a library. To rule all of Openstack. It will
 probably also work with whatever internal services you have written, too, if
