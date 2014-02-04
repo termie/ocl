@@ -1,17 +1,68 @@
-HOLY FUCKING SHIT IT IS OCL
-===========================
+The One True OpenStack CLI and Library
+======================================
 
-This is a command-line tool and a library. To control all of Openstack
+| *"One ocl to rule them all,
+| one ocl to find them,
+| one ocl to bring them all
+| and in the darkness bind them."*
 
-It has an external dependency on 'requests' so you'll need that.
-And 'warlock.'
+This is a command-line tool and a library. To rule all of Openstack. It will
+probably also work with whatever internal services you have written, too, if
+you use common styles of APIs.
 
-Still very thrown together, but here's sort of what's going on.
+It has an external dependency on 'requests' so you'll need that. It also uses
+a library, 'warlock', for lightweight jsonschema validation.
+
+It's only a little bit past the proof of concept stage, but it is a pretty
+good concept :)
 
 
---------------------
-Get The Fuck Started
---------------------
+Why?
+====
+
+What a rude question! I never... ... fine.
+
+OpenStack is a big project, and big projects are very susceptible to the
+too-many-ways-of-doing-things disease.
+
+At current check there are different client libraries for each major project,
+many inter-dependent, nearly all based on a legacy library designed to work
+with Rackspace's API before OpenStack even existed. Things have changed and
+we need a more modern library.
+
+A couple attempts have been made to unify these libraries, either as aggregate
+wrapper, thereby suffering the same faults as the underlying libraries, or
+as new projects, thereby suffering from synchronization issues.
+
+
+---------------
+We're Different
+---------------
+
+We're lazy and we expect you to be also. Have you seen how many different API
+calls there are in Nova? I sure don't want to type those all out.
+
+We solve the synchronization issue by generating the vast majority of our
+code from the the projects themselves. Some projects already make this easy
+for us, others have changes in the pipeline to do so.
+
+
+------------
+Pro Features
+------------
+
+ * Vast majority of API calls auto-generated from original project's code.
+ * Easy testing facilities for evaluating new calls, projects usually won't
+   need to update OCL to make use of new calls.
+ * Simple entry_points-based modular system for supporting new projects.
+ * Awesome, aggressive service discovery for endpoints.
+ * Smart, optional, caching of authentication, identifier lookups, and results.
+ * Functional-style library usage without internal state, great for testing.
+
+
+---------------------
+Get Started Right Now
+---------------------
 
 Things are progressing quickly. At the moment your best bet is to do something
 like::
@@ -20,10 +71,13 @@ like::
   $ pip install -e .
   $ ocl --help
 
+We'll start pushing up a pypi package once we've squared up our public API
+a little more firmly.
 
---------------------
-Helping The Fuck Out
---------------------
+
+------------------------
+Helping Make This Better
+------------------------
 
 Try running the commands, when they fail, `post an issue`_.
 
@@ -41,7 +95,7 @@ If you don't want to cache the token use the ``--nocache`` flag.
 
 If you want to delete the token cache use the ``--clean`` flag.
 
-If you don't want to type the auth url you can set an env var ``OCL_AUTH_URL``
+If you don't want to type the auth url you can set an env var ``OS_AUTH_URL``
 
 ::
 
@@ -141,12 +195,12 @@ Library Example
 
 
 
-Great Minds Are Skeptical
-=========================
+How We Are Awesome: The Architecture of OCL
+===========================================
 
------------------------------------------
-First You Authenticate, Then You Do Stuff
------------------------------------------
+-----------------------------
+Authentication: Do This First
+-----------------------------
 
 This has a couple nice features:
 
@@ -155,8 +209,8 @@ This has a couple nice features:
   3. The authentication scheme is decoupled.
 
 
-Y'already Know, Buddy
----------------------
+Don't Magically Authenticate
+----------------------------
 
 Isn't it annoying wondering whether your API call is going to make another
 call to authenticate before it actually makes your call, but only sometimes
@@ -184,7 +238,7 @@ Hey there. Stop. Listen. Why are you authenticating all the damn time?
 Do you like typing your password into things? Do you like saving it in files?
 I sure as hell don't and I'm willing to bet you don't either.
 
-Screw that stuff.
+Forget that stuff.
 
 By default, the command-line client will cache your auth token. Speeds stuff
 right up. But since you are a cool programmer you'll probably want to do your
@@ -192,13 +246,12 @@ own cool caching and because auth is separate YOU CAN. Easily::
 
   auth_dict = auth_ref.to_dict()
 
-  auth_ref = auth.Auth(**auth_dict)
-
-  # This doesn't work yet. TODO(termie): remove this when it does work.
+  auth_ref = auth.Auth.from_authenticate(auth_dict)
 
 
-We'll Always Love You As Long As You're Perfect
------------------------------------------------
+
+Ducktyping: A Loosely Coupled Interface
+---------------------------------------
 
 Because auth basically just has to provide some data that the API knows how to
 take advantage of, it can do anything it needs to in order to get that data.
@@ -208,12 +261,17 @@ Anything. As long as it's good data we'll look the other way::
 
   crazy_auth_ref = crazy_auth.lie_about_everything()
 
+  apee = api.Authenticated(api.Api(), crazy_auth_ref)
+
+  rv = apee.glance.list_images(name='foo')
+  print rv['images'][0]['id']
+
   # Haha. Oh man, that auth is so crazy. -wipes tears from eyes-
 
 
--------------------
-We Can Be Explorers
--------------------
+------------------------------
+Discovery: We Can Be Explorers
+------------------------------
 
 Actually, Openstack pretty much forces you to be, so let's solve this
 whole discovery debacle. Let's be really, really aggressive about figuring
@@ -351,9 +409,18 @@ to use Endpoints data object. Examples::
 
 Have fun, champs.
 
---------------
-State No State
---------------
+---------------------------
+Functional: No Secret State
+---------------------------
+
+Many existing libraries fall victim to an internal "authenticated" state that
+automatically gets filled in if empty when the first API call is made. This
+can lead to unexpected behavior and weird hacks that attempt an API call
+to force authentication. If retries need to happen the outcome can be unknown
+and difficult to deal with.
+
+Explicit is better than implicit, and will save us a lot of time when dealing
+with calls that can fail or false contexts being used for testing.
 
 
 I Don't Know What A Monad Is
@@ -373,7 +440,7 @@ call) require an ``auth_ref`` parameter that is always passed as a keyword.::
 
   images = apee.glance.list_image(auth_ref=auth_ref)
 
-  # Remember that it auth_ref always passed as a keyword
+  # Remember that auth_ref is always passed as a keyword
 
 
 Let's Pretend We Know Stuff Though
@@ -420,9 +487,18 @@ parameter, but we also have a wrapper for that::
   some_id = apee.glance.image_id(some_name)
 
 
------------
-Data Stuffs
------------
+Insert Your Own Auth or Caching
+-------------------------------
+
+Having these things loosely coupled and used functionally means you can use
+your own authentication systems, your own caching systems, pre-fill caches,
+and otherwise do things the library never has to know about.
+
+You don't have to hack our code to hack your own behaviors.
+
+------------------------------------
+Data Objects: Requests and Responses
+------------------------------------
 
 Openstack has a weird API, don't even try to pretend it doesn't.
 
@@ -435,7 +511,7 @@ As expected, we're going to let you do either.
 Raw Deal
 --------
 
-The basics when you use any of the API methods will in almost all cases give
+When you use any of the API methods, they will in almost all cases give
 you back a basic dictionary that is a direct copy of the parsed result::
 
   from ocl import api
@@ -454,8 +530,8 @@ but we don't know you and I don't care about your feelings.
 Just kidding, we love you.
 
 That thing we returned is actually smart and stuff, so even though it _looks_
-like a dictionary to your pathetic little eyes, it actually has a power level
-over 9000::
+like a dictionary to your awe-filled little eyes, it actually has a power
+level over 9000::
 
   from ocl import api
 
@@ -477,11 +553,26 @@ over 9000::
     print image.size
 
 
+Barely Schemas
+--------------
+
+We use jsonschema-style schemas to define the data objects we expect to see
+and the ones we expect to generate.
+
+For requests, this equates to naively filling out fields in a dict based
+on what the jsonschema expects and what parameter names have been passed along.
+
+For responses they just define the expectations for parsing.
+
+Some projects already define these for us, others require introspection and
+clever code so that we can generate the schemas from their implementations.
+
+
 ------------------
 Command-Line Sugar
 ------------------
 
-Because half of the goal of this bad boy is to provide you, Sir User, a
+Because half of the goal of this bad boy is to provide you, User A, a
 wicked great command-line interface, we did some nice things for you.
 
   1. Auth token caching.
@@ -520,7 +611,7 @@ that starts with ``ocl-``, for example if you had ``ocl-party`` then calling
 
 Just a nicety, but sometimes people want that.
 
-# TODO(termie): This doesn't work either.
+# TODO(termie): This doesn't work, but I bet it is easy to do :D
 
 
 ------------------

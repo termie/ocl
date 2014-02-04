@@ -5,9 +5,9 @@ except:
 
 config = dict(
     name='ocl',
-    version='0.1.0',
+    version='0.2.0',
     url='https://github.com/termie/ocl',
-    description='The Allspark for OpenStack',
+    description='The One True OpenStack CLI and Library',
     author='Andy Smith',
     author_email='github@anarkystic.com',
     install_requires=['requests', 'jsonschema', 'warlock', 'pyyaml'],
