@@ -98,36 +98,52 @@ class Parser(object):
     return self.parser.parse_args()
 
 
-def _add_subparser_for_service(subparsers, name, handle):
-  # generate our description
-  service_doc = 'FOO'
-  if handle.__doc__:
-    service_doc = handle.__doc__.split('\n')[0]
-  # add the service parser
+def _add_subparser_for_service(subparsers, name, service):
+  """Generate the CLI parser for an instance.
+
+  This is significantly more complicated looking than normal because
+  we use descriptors for the auto-generated API and decorators liberally.
+  """
+
+  # Description for the service
+  service_doc = 'UNDOCUMENTED'
+  if service.__doc__:
+    service_doc = service.__doc__.split('\n')[0]
+
+  # First level subparser: the service
   sp = subparsers.add_parser(name,
                              help=service_doc)
 
+  # Second level subparser: the method
   second = sp.add_subparsers()
   second.metavar = 'METHOD'
 
-  for method_name in dir(handle):
+  for method_name in dir(service):
+    # Skip internal methods and non-callables
     if method_name.startswith('_'):
       continue
-    method = getattr(handle, method_name)
+    method = getattr(service, method_name)
     if not callable(method):
       continue
+
+    # Get the docstring
+    method_desc = method.__doc__ and method.__doc__ or 'UNDOCUMENTED'
+    method_help = method_desc.split('\n')[0]
+
 
     # Deal with our descriptors
     if isinstance(method, api.ApiMethod):
       method = getattr(method, '__call__')
 
-    # Each method is its own parser, too
+    # Each method is its own parser
     p = second.add_parser(method_name,
-                          help='FOO - 1-line method docstring',
-                          description='FOO - multiline method docstring')
+                          help=method_help,
+                          description=method_desc)
+
+    # Set an attribute to remember the callable for the method
     p.set_defaults(func=method)
 
-    # Take a long hard look at our method
+    # Take a long hard look at our method / your life
     args, varargs, keywords, defaults = inspect.getargspec(method)
 
     # Special case for now, deal with free-form stuff for testing
@@ -136,6 +152,8 @@ def _add_subparser_for_service(subparsers, name, handle):
       continue
 
     # Match up the positional args to their names
+    # These are reversed and re-reversed because defaults are given
+    # in the reverse order.
     args = list(reversed(args))
     l = []
     for i, arg in enumerate(args):
@@ -143,9 +161,9 @@ def _add_subparser_for_service(subparsers, name, handle):
       if arg in ('self', 'auth_ref', 'cache_ref'):
         continue
 
-      # Build up the argument
+      # Build up the argparse argument
       arg_name = arg
-      params = {'help': method.__doc__}
+      params = {'help': _get_param_help(arg_name, method)}
       try:
         params['default'] = defaults[i]
         params['required'] = False
@@ -158,13 +176,19 @@ def _add_subparser_for_service(subparsers, name, handle):
       p.add_argument(arg_name, **params)
 
 
+def _get_param_help(arg_name, method):
+  """Get the help for a parameter.
+
+  Right now this is not implemented but it should probably look up the
+  variable names from somewhere.
+  """
+  return 'UNDOCUMENTED'
+
+
 class DirectParser(Parser):
   def __init__(self, *args, **kw):
     super(DirectParser, self).__init__(*args, **kw)
     self._build_from_api(self.api)
-
-  def _build_from_service(self, name, handle):
-    _add_subparser_for_service(self.subparsers, name, handle)
 
   def _build_from_api(self, api_ref):
     """Build a command tree from an Api instance."""
@@ -173,6 +197,9 @@ class DirectParser(Parser):
                   if not k.startswith('_'))
     for name, handle in services.iteritems():
       self._build_from_service(name, handle)
+
+  def _build_from_service(self, name, handle):
+    _add_subparser_for_service(self.subparsers, name, handle)
 
 
 class CommandLine(object):

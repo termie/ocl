@@ -75,6 +75,12 @@ def version_in_url(url):
 
 
 class Discovery(object):
+  """Service discovery.
+
+  Will attempt to parse and lookup all versions of APIs described
+  by the service catalog.
+  """
+
   def discover(self, raw_catalog=None, auth_ref=None, cache_ref=None):
     """Try hard to figure out what we're doing."""
     if not raw_catalog:
