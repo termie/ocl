@@ -213,7 +213,7 @@ CLI User Input Parsing
 ----------------------
 
 Parsing is done using argparse, largely auto-generated. For the majority of
-cases, this will just look like `ocl service_name method some_arg1 some_arg2` .
+cases, this will just look like ``ocl service_name method some_arg1 some_arg2`` .
 
 Dash dash help (--help) works as expected at whichever level it is called
 to give more granular information on calls.
