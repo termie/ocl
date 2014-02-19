@@ -10,8 +10,10 @@ Here's a basic layer diagram as you drive down through the stack:
 
   CLI User Input Parsing
                 |
+               \ /
   CLI Caching
                 |
+               \ /
   CLI Function Auto-Generation from Classes and Methods
                 |
   Plugin Registration
